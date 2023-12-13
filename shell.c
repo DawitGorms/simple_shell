@@ -7,7 +7,7 @@
 
 #define BUF_SIZE 1024
 
-int main(void)
+int main(void);
 {
 char *prompt = "#cisfun$ ";
 char command[BUF_SIZE];
