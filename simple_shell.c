@@ -23,7 +23,6 @@ printf("#cisfun$ ");
 int main(void)
 {
 char command[MAX_COMMAND_LENGTH];
-pid_t pid;
 
 while (1)
 {
@@ -34,30 +33,11 @@ if (fgets(command, MAX_COMMAND_LENGTH, stdin) == NULL)
 printf("\n");
 exit(0);
 }
+command[strcspn(command, "\n")] = '\0';  /* Remove the newline character */
 
-command[strcspn(command, "\n")] = '\0'; /* Remove the newline character */
+/* Task-specific implementation goes here */
 
-pid = fork();
-
-if (pid < 0)
-{
-fprintf(stderr, "Fork failed\n");
-continue;
-}
-else if (pid == 0)
-{
-if (execlp(command, command, (char *)NULL) == -1)
-{
-fprintf(stderr, "%s: command not found\n", command);
-exit(1);
-}
-}
-else
-{
-int status;
-waitpid(pid, &status, 0);
-}
 }
 
-return 0;
+return (0);
 }
