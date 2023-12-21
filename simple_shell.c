@@ -10,7 +10,7 @@
  */
 void display_prompt(void)
 {
-    printf("simple_shell $ ");
+	printf("simple_shell $ ");
 }
 
 /**
@@ -20,43 +20,43 @@ void display_prompt(void)
  */
 int main(void)
 {
-    char command[MAX_COMMAND_LENGTH];
+	char command[MAX_COMMAND_LENGTH];
 
-    while (1)
-    {
-        display_prompt();
-        if (fgets(command, MAX_COMMAND_LENGTH, stdin) == NULL)
-        {
-            printf("\n");
-            exit(0);
-        }
+	while (1)
+	{
+		display_prompt();
+		if (fgets(command, MAX_COMMAND_LENGTH, stdin) == NULL)
+		{
+			printf("\n");
+			exit(0);
+		}
 
-        command[strcspn(command, "\n")] = '\0';  /* Remove the newline character */
+		command[strcspn(command, "\n")] = '\0';  /* Remove the newline character */
 
-        if (strcmp(command, "exit") == 0)
-            exit(0);
+		if (strcmp(command, "exit") == 0)
+			exit(0);
 
-        pid_t pid = fork();
+		pid_t pid = fork();
 
-        if (pid < 0)
-        {
-            fprintf(stderr, "Fork failed\n");
-            continue;
-        }
-        else if (pid == 0)
-        {
-            if (execlp(command, command, NULL) == -1)
-            {
-                fprintf(stderr, "%s: command not found\n", command);
-                exit(1);
-            }
-        }
-        else
-        {
-            int status;
-            waitpid(pid, &status, 0);
-        }
-    }
+		if (pid < 0)
+		{
+			fprintf(stderr, "Fork failed\n");
+			continue;
+		}
+		else if (pid == 0)
+		{
+			if (execlp(command, command, NULL) == -1)
+			{
+				fprintf(stderr, "%s: command not found\n", command);
+				exit(1);
+			}
+		}
+		else
+		{
+			int status;
+			waitpid(pid, &status, 0);
+		}
+	}
 
-    return 0;
+	return (0);
 }
