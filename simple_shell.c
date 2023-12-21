@@ -12,46 +12,49 @@
  */
 void display_prompt(void)
 {
-	write(STDOUT_FILENO, "#cisfun$ ", 10);
+    printf("#cisfun$ ");
 }
 
-/**
- * main - Entry point of the command line interpreter.
- *
- * Return: Always 0.
- */
 int main(void)
 {
-	char *command = NULL;
-	size_t bufsize = 0;
-	pid_t pid;
-	int status;
+    pid_t pid;
+    char *command = NULL;
+    size_t bufsize = 0;
+    int status;
 
-	while (1)
-	{
-		display_prompt();
-		if (getline(&command, &bufsize, stdin) == -1)
-		{
-			write(STDOUT_FILENO, "\n", 1);
-			free(command);
-			exit(0);
-		}
-		command[strcspn(command, "\n")] = '\0';
-		pid = fork();
-		if (pid == 0)
-		{
-			execute_command(command);
-			exit(0);
-		}
-		else if (pid < 0)
-		{
-			perror("Fork failed");
-		}
-		else
-		{
-			waitpid(pid, &status, 0);
-		}
-	}
+    while (1)
+    {
+        display_prompt();
 
-	return (0);
+        if (getline(&command, &bufsize, stdin) == -1)
+        {
+            printf("\n");
+            free(command);
+            exit(0);
+        }
+
+        command[strcspn(command, "\n")] = '\0'; /* Remove the newline character */
+
+        pid = fork();
+
+        if (pid < 0)
+        {
+            perror("Fork failed");
+            continue;
+        }
+        else if (pid == 0)
+        {
+            if (execlp(command, command, NULL) == -1)
+            {
+                fprintf(stderr, "%s: command not found\n", command);
+                exit(1);
+            }
+        }
+        else
+        {
+            waitpid(pid, &status, 0);
+        }
+    }
+
+    return 0;
 }
