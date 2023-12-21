@@ -1,16 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <string.h>
 
-#define MAX_COMMAND_LENGTH 100
+#define MAX_COMMAND_LENGTH 256
 
 /**
  * display_prompt - Display the shell prompt.
  */
 void display_prompt(void)
 {
-	printf("simple_shell $ ");
+	write(STDOUT_FILENO, "#cisfun$ ", 10);
 }
 
 /**
@@ -20,40 +22,33 @@ void display_prompt(void)
  */
 int main(void)
 {
-	char command[MAX_COMMAND_LENGTH];
+	char *command = NULL;
+	size_t bufsize = 0;
+	pid_t pid;
+	int status;
 
 	while (1)
 	{
 		display_prompt();
-		if (fgets(command, MAX_COMMAND_LENGTH, stdin) == NULL)
+		if (getline(&command, &bufsize, stdin) == -1)
 		{
-			printf("\n");
+			write(STDOUT_FILENO, "\n", 1);
+			free(command);
 			exit(0);
 		}
-
-		command[strcspn(command, "\n")] = '\0';  /* Remove the newline character */
-
-		if (strcmp(command, "exit") == 0)
+		command[strcspn(command, "\n")] = '\0';
+		pid = fork();
+		if (pid == 0)
+		{
+			execute_command(command);
 			exit(0);
-
-		pid_t pid = fork();
-
-		if (pid < 0)
-		{
-			fprintf(stderr, "Fork failed\n");
-			continue;
 		}
-		else if (pid == 0)
+		else if (pid < 0)
 		{
-			if (execlp(command, command, NULL) == -1)
-			{
-				fprintf(stderr, "%s: command not found\n", command);
-				exit(1);
-			}
+			perror("Fork failed");
 		}
 		else
 		{
-			int status;
 			waitpid(pid, &status, 0);
 		}
 	}
